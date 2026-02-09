@@ -1,65 +1,116 @@
-import Image from "next/image";
+"use client";
+import React, { useState } from 'react';
 
-export default function Home() {
+export default function TipCalculator() {
+  const [bill, setBill] = useState<number>(0);
+  const [tipPercent, setTipPercent] = useState<number>(5); 
+  const [numPeople, setNumPeople] = useState<number>(1);
+  const [isSplit, setIsSplit] = useState<boolean>(true);
+  
+  const [displayTip, setDisplayTip] = useState<number>(0);
+  const [displayTotal, setDisplayTotal] = useState<number>(0);
+
+  const calculate = () => {
+    const totalTip = bill * (tipPercent / 100);
+    const totalWithTip = bill + totalTip;
+    const people = isSplit && numPeople > 0 ? numPeople : 1;
+
+    setDisplayTip(totalTip / people);
+    setDisplayTotal(totalWithTip / people);
+  };
+
+  const reset = () => {
+    setBill(0);
+    setTipPercent(5);
+    setNumPeople(1);
+    setDisplayTip(0);
+    setDisplayTotal(0);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <div className="min-h-screen bg-[#DDE7FF] flex flex-col items-center justify-center p-4 font-sans">
+      <h1 className="bg-white px-12 py-3 rounded-lg shadow-sm mb-8 text-2xl font-bold text-gray-700">
+        My Tip Calculator
+      </h1>
+
+      <div className="bg-white rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden max-w-4xl w-full border border-gray-100">
+        {/* ฝั่งซ้าย: Input */}
+        <div className="p-10 flex-1">
+          <div className="mb-6">
+            <label className="block text-gray-500 font-bold mb-2">Bill Amount</label>
+            <input 
+              type="number" 
+              value={bill || ''} 
+              onChange={(e) => setBill(Number(e.target.value))}
+              className="w-full bg-slate-50 border border-gray-200 rounded-lg p-3 outline-none focus:ring-2 focus:ring-indigo-400 text-lg"
+              placeholder="0"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-gray-500 font-bold mb-2">Tip Percentage</label>
+            <div className="flex">
+              <button 
+                className="px-10 py-3 rounded-xl bg-[#4D47E5] text-white font-bold shadow-lg"
+              >
+                5%
+              </button>
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <label className="flex items-center space-x-3 cursor-pointer">
+              <input 
+                type="checkbox" 
+                checked={isSplit} 
+                onChange={(e) => setIsSplit(e.target.checked)}
+                className="w-5 h-5 accent-[#4D47E5]"
+              />
+              <span className="text-gray-500 font-bold">Split the bill</span>
+            </label>
+          </div>
+
+          {isSplit && (
+            <div className="mb-8">
+              <label className="block text-gray-500 font-bold mb-2">Number of People</label>
+              <input 
+                type="number" 
+                value={numPeople} 
+                onChange={(e) => setNumPeople(Math.max(1, Number(e.target.value)))}
+                className="w-full bg-slate-50 border border-gray-200 rounded-lg p-3 outline-none focus:ring-2 focus:ring-indigo-400"
+              />
+            </div>
+          )}
+
+          <button 
+            onClick={calculate}
+            className="w-full py-4 border-2 border-indigo-600 text-indigo-600 font-black rounded-xl hover:bg-indigo-600 hover:text-white transition-all"
           >
-            Documentation
-          </a>
+            Calculate
+          </button>
         </div>
-      </main>
+
+        {/* ฝั่งขวา: Display */}
+        <div className="bg-[#B2A4FF] p-10 flex-1 flex flex-col justify-between">
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded-2xl flex justify-between items-center shadow-md">
+              <span className="text-gray-400 font-bold">Tip / person</span>
+              <span className="text-3xl font-black text-gray-800">${displayTip.toFixed(2)}</span>
+            </div>
+            <div className="bg-white p-6 rounded-2xl flex justify-between items-center shadow-md">
+              <span className="text-gray-400 font-bold">Total / person</span>
+              <span className="text-3xl font-black text-gray-800">${displayTotal.toFixed(2)}</span>
+            </div>
+          </div>
+
+          <button 
+            onClick={reset}
+            className="w-full bg-white py-4 text-indigo-600 font-black rounded-xl shadow-lg hover:bg-gray-50 mt-8"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
